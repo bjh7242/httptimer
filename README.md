@@ -24,6 +24,8 @@ The following options must be specified:
 
 Additionally, a known correct password can be specified (--poc-password). The timing attack will run until each character matches the known password. If a character does not match, the test will restart from the first character.
 
+To determine the correct parameter names for the request as well as the error message from invalid credentials, view the source of the page you are targeting (and then view the source of the page that displays the error message).
+
 ## Sample Execution
 ```shell
 $ python httptimer.py --url http://localhost:3000/login -n 2000 -F 'Invalid username/password combination' -u test --poc-password 'abc'

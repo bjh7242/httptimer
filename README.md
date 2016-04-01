@@ -3,16 +3,11 @@ Execute Timing Attacks on Web Applications
 
 ## Prerequisites 
 Python requests module
-``shell
+```shell
 $ pip install requests
 ```
 
 ## How To Run
-usage: httptimer.py [-h] --url URL -n NUMREQS -F FAILEDLOGIN -u USERNAME
-                    [-c CHARSET] [-U POSTUSERNAME] [-P POSTPASSWORD]
-                    [--poc-password POC]
-httptimer.py: error: argument --url is required
-
 To view the required arguments, run the following command.
 
 ```shell

